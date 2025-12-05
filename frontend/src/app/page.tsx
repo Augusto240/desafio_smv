@@ -29,7 +29,7 @@ export default function Home() {
         tasksPerPage
       );
       setTasks(response.data);
-      setTotalPages(Math.ceil(response. total / tasksPerPage));
+      setTotalPages(Math.ceil(response.total / tasksPerPage));
     } catch (error) {
       console.error('Erro ao carregar tarefas:', error);
     }
@@ -55,7 +55,7 @@ export default function Home() {
       await updateTask(id, { completed });
       loadTasks();
     } catch (error) {
-      console. error('Erro ao atualizar tarefa:', error);
+      console.error('Erro ao atualizar tarefa:', error);
     }
   }
 
