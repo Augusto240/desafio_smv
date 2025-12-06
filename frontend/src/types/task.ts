@@ -13,3 +13,10 @@ export interface TasksResponse {
   page: number;
   limit: number;
 }
+
+export interface User {
+  id: string;
+  name: string;
+  email: string | null;
+  avatar: string | null;
+}
