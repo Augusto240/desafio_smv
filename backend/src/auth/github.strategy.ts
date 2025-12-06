@@ -1,25 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-github2';
-import { AuthService } from './auth.service';
+import { AuthService } from './auth.service.js';
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
   constructor(private authService: AuthService) {
     super({
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process. env.GITHUB_CLIENT_SECRET,
+      clientID: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
       callbackURL: 'http://localhost:3001/auth/github/callback',
       scope: ['user:email'],
     });
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any) {
-    const user = await this. authService.validateGithubUser({
-      githubId: profile. id,
+    const user = await this.authService.validateGithubUser({
+      githubId: profile.id,
       name: profile.displayName || profile.username,
-      email: profile.emails? .[0]?.value || null,
-      avatar: profile.photos?.[0]?. value || null,
+      email: profile.emails?.[0]?.value || null,
+      avatar: profile.photos?.[0]?.value || null,
     });
     return user;
   }
