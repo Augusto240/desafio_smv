@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -7,8 +7,14 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 export class TasksService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(status?: string, priority?: string, page?: number, limit?: number) {
-    const where: any = {};
+  async findAll(
+    userId: string,
+    status?: string,
+    priority?: string,
+    page?: number,
+    limit?: number,
+  ) {
+    const where: any = { userId };
 
     if (status === 'completed') {
       where.completed = true;
@@ -23,7 +29,7 @@ export class TasksService {
     const skip = page && limit ? (page - 1) * limit : undefined;
     const take = limit || undefined;
 
-    const tasks = await this.prisma.task.findMany({
+    const tasks = await this. prisma.task. findMany({
       where,
       skip,
       take,
@@ -40,27 +46,40 @@ export class TasksService {
     };
   }
 
-  async findOne(id: string) {
-    return this.prisma.task.findUnique({ where: { id } });
+  async findOne(id: string, userId: string) {
+    const task = await this. prisma.task. findFirst({
+      where: { id, userId },
+    });
+
+    if (! task) {
+      throw new NotFoundException('Tarefa não encontrada');
+    }
+
+    return task;
   }
 
-  async create(data: CreateTaskDto) {
-    return this.prisma.task.create({
+  async create(userId: string, data: CreateTaskDto) {
+    return this.prisma. task.create({
       data: {
         title: data.title,
         priority: data.priority || 'media',
+        userId,
       },
     });
   }
 
-  async update(id: string, data: UpdateTaskDto) {
-    return this.prisma.task.update({
+  async update(id: string, userId: string, data: UpdateTaskDto) {
+    await this.findOne(id, userId);
+
+    return this.prisma. task.update({
       where: { id },
       data,
     });
   }
 
-  async remove(id: string) {
-    return this.prisma.task.delete({ where: { id } });
+  async remove(id: string, userId: string) {
+    await this. findOne(id, userId);
+
+    return this.prisma. task.delete({ where: { id } });
   }
 }
